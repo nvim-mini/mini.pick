@@ -2603,7 +2603,8 @@ H.picker_compute_footer = function(picker, win_id)
   local n_spaces_between = win_width - (source_width + inds_width)
   if n_spaces_between > 0 then
     local border_hl = picker.is_busy and 'MiniPickBorderBusy' or 'MiniPickBorder'
-    footer[2] = { H.win_get_bottom_border(win_id):rep(n_spaces_between), border_hl }
+    local part_id = picker.opts.options.content_from_bottom and 2 or 6
+    footer[2] = { H.win_get_bottom_border(win_id, part_id):rep(n_spaces_between), border_hl }
     footer[3] = { inds, 'MiniPickBorderText' }
   end
   return footer
@@ -3614,11 +3615,10 @@ H.fit_to_width = function(text, width)
   return t_width <= width and text or ('…' .. vim.fn.strcharpart(text, t_width - width + 1, width - 1))
 end
 
-H.win_get_bottom_border = function(win_id)
+H.win_get_bottom_border = function(win_id, border_part_id)
   local border = vim.api.nvim_win_get_config(win_id).border or {}
-  local res = border[6]
-  if type(res) == 'table' then res = res[1] end
-  return res or ' '
+  local res = border[border_part_id]
+  return (type(res) == 'table' and res[1] or res) or ' '
 end
 
 H.win_set_cwd = function(win_id, cwd)
