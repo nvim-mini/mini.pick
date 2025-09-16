@@ -41,7 +41,7 @@ https://github.com/nvim-mini/mini.nvim/assets/24854248/65849d1e-3f96-4085-a4cf-f
 
 - `:Pick` command to work with extensible `MiniPick.registry`.
 
-- `vim.ui.select()` wrapper.
+- `vim.ui.select()` implementation. To adjust, use `MiniPick.ui_select()` or save-restore `vim.ui.select` manually after calling `MiniPick.setup()`.
 
 - Rich and customizable built-in actions when picker is active:
     - Manually change currently focused item.

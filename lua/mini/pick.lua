@@ -25,7 +25,8 @@
 ---
 --- - |:Pick| command to work with extensible |MiniPick.registry|.
 ---
---- - |vim.ui.select()| wrapper (see |MiniPick.ui_select()|).
+--- - |vim.ui.select()| implementation. To adjust, use |MiniPick.ui_select()|
+---   or save-restore `vim.ui.select` manually after calling |MiniPick.setup()|.
 ---
 --- - Rich and customizable built-in |MiniPick-actions| when picker is active:
 ---     - Manually change currently focused item.
@@ -694,6 +695,10 @@ local H = {}
 ---   :Pick files tool='git'
 ---   :Pick grep pattern='<cword>'
 --- <
+---
+--- It also sets custom |vim.ui.select()| implementation to use the module.
+--- See |MiniPick.ui_select()|.
+---
 ---@param config table|nil Module config table. See |MiniPick.config|.
 ---
 ---@usage >lua
@@ -726,6 +731,9 @@ MiniPick.setup = function(config)
     if not MiniPick.is_picker_active() then return paste_orig(...) end
     H.notify('Use `mappings.paste` (`<C-r>` by default) with "*" or "+" register.', 'HINT')
   end
+
+  -- Set custom implementation
+  vim.ui.select = MiniPick.ui_select
 end
 
 --stylua: ignore
@@ -1228,6 +1236,7 @@ end
 ---
 --- Function which can be used to directly override |vim.ui.select()| to use
 --- 'mini.pick' for any "select" type of tasks.
+--- Set automatically in |MiniPick.setup()|.
 ---
 --- Implements required by `vim.ui.select()` signature, with some differencies:
 --- - Allows `opts.preview_item` that returns an array of lines for item preview.
@@ -1237,13 +1246,17 @@ end
 --- - `on_choice` is called when target window is current.
 ---
 ---@usage >lua
----   vim.ui.select = MiniPick.ui_select
----
 ---   -- Customize with fourth argument inside a function wrapper
 ---   vim.ui.select = function(items, opts, on_choice)
 ---     local start_opts = { window = { config = { width = vim.o.columns } } }
 ---     return MiniPick.ui_select(items, opts, on_choice, start_opts)
 ---   end
+--- <
+--- To preserve original `vim.ui.select()`: >lua
+---
+---   local ui_select_orig = vim.ui.select
+---   require('mini.pick').setup()
+---   vim.ui.select = ui_select_orig
 --- <
 MiniPick.ui_select = function(items, opts, on_choice, start_opts)
   local format_item = opts.format_item or H.item_to_string
