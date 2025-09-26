@@ -1,8 +1,8 @@
-<div align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-pick_readme.png" alt="mini.pick"/> </div>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-pick_readme.png?raw=true" alt="mini.pick" style="max-width:100%;border:solid 2px"/> </p>
 
 ### Pick anything
 
-See more details in [Features](#features) and [help file](doc/mini-pick.txt).
+See more details in [Features](#features) and [Documentation](doc/mini-pick.txt).
 
 ---
 
@@ -21,6 +21,7 @@ If you want to help this project grow but don't know where to start, check out [
 
 ## Demo
 
+<!-- Demo source: https://github.com/nvim-mini/assets/blob/main/demo/demo-pick.mp4 -->
 https://github.com/nvim-mini/mini.nvim/assets/24854248/65849d1e-3f96-4085-a4cf-f9962cfdbdfd
 
 ## Features
@@ -67,6 +68,7 @@ https://github.com/nvim-mini/mini.nvim/assets/24854248/65849d1e-3f96-4085-a4cf-f
 - Match caching to increase responsiveness on repeated prompts.
 
 Notes:
+
 - Works on all supported versions but Neovim>=0.10 will give more visual feedback in floating window footer.
 
 - For more pickers see ['mini.extra'](https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-extra.md).
@@ -76,12 +78,13 @@ Notes:
   - [fd](https://github.com/sharkdp/fd#excluding-specific-files-or-directories)
   - [git](https://git-scm.com/docs/gitignore)
 
-Read more information, see these tags in help file:
-- `*MiniPick-overview*`
-- `*MiniPick-source*`
-- `*MiniPick-actions*`
-- `*MiniPick-examples*`
-- `*MiniPick.builtin*`
+For more information see these parts of help:
+
+- `:h MiniPick-overview`
+- `:h MiniPick-source`
+- `:h MiniPick-actions`
+- `:h MiniPick-examples`
+- `:h MiniPick.builtin`
 
 ## Dependencies
 
@@ -97,18 +100,22 @@ General idea is to take array of objects, display them with interactive filter/s
 
 ### How to start a picker
 
-- Use `MiniPick.start()` with `opts.source` defining source.<br>
-  Example: `MiniPick.start({ source = { items = vim.fn.readdir('.') } })`
+- Use `MiniPick.start()` with `opts.source` defining source.
 
-- Use any of `MiniPick.builtin` pickers directly.<br>
-  Example: `MiniPick.builtin.files({ tool = 'git' })`
+    Example: `MiniPick.start({ source = { items = vim.fn.readdir('.') } })`
 
-- Use `:Pick` command which uses customizable pickers from `MiniPick.registry`.<br>
-  Example: `:Pick files tool='git'`
+- Use any of `MiniPick.builtin` pickers directly.
+
+    Example: `MiniPick.builtin.files({ tool = 'git' })`
+
+- Use `:Pick` command which uses customizable pickers from `MiniPick.registry`.
+
+    Example: `:Pick files tool='git'`
 
 ### User interface
 
 UI consists from a single window capable of displaying three different views:
+
 - "Main" - where current query matches are shown.
 - "Preview" - preview of current item (toggle with `<Tab>`).
 - "Info" - general info about picker and its state (toggle with `<S-Tab>`).
@@ -116,16 +123,17 @@ UI consists from a single window capable of displaying three different views:
 Current prompt is displayed at the top left of the window border with vertical line indicating caret (current input position).
 
 Bottom part of window border displays (in Neovim>=0.10) extra visual feedback:
+
 - Left part is a picker name.
-- Right part contains information in the format<br>
-  `<current index in matches> | <match count> | <marked count> / <total count>`
+- Right part contains information in the format:
+
+    `<current index in matches> | <match count> | <marked count> / <total count>`
 
 When picker is busy (like if there are no items yet set or matching is active) window border changes color to be `MiniPickBorderBusy` after `config.delay.busy` milliseconds of idle time.
 
 ### Life cycle
 
-- Type characters to filter and sort matches. It uses `MiniPick.default_match()` with `query` being an array of pressed characters.<br>
-  Overview of how it matches:
+- Type characters to filter and sort matches. It uses `MiniPick.default_match()` with `query` being an array of pressed characters. Overview of how it matches:
     - If query starts with `'`, the match is exact.
     - If query starts with `^`, the match is exact at start.
     - If query ends with `$`, the match is exact at end.
@@ -157,91 +165,67 @@ Here are code snippets for some common installation methods (use only one):
 
 <details>
 <summary>With <a href="https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-deps.md">mini.deps</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td> <td>Main</td> <td rowspan=2><i>Follow recommended 'mini.deps' installation</i></td>
-        </tr>
-        <tr>
-            <td>Stable</td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>add('nvim-mini/mini.pick')</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>add({ source = 'nvim-mini/mini.pick', checkout = 'stable' })</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | *Follow recommended ‘mini.deps’ installation* |
+    | Stable | *Follow recommended ‘mini.deps’ installation* |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                                   |
+    |--------|----------------------------------------------------------------|
+    | Main   | `add(‘nvim-mini/mini.pick’)`                                   |
+    | Stable | `add({ source = ‘nvim-mini/mini.pick’, checkout = ‘stable’ })` |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/folke/lazy.nvim">folke/lazy.nvim</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td>
-            <td>Main</td> <td><code>{ 'nvim-mini/mini.nvim', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.nvim', version = '*' },</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td>
-            <td>Main</td> <td><code>{ 'nvim-mini/mini.pick', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.pick', version = '*' },</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.nvim', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.nvim', version = '*' },`   |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.pick', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.pick', version = '*' },`   |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/junegunn/vim-plug">junegunn/vim-plug</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td>
-            <td>Main</td> <td><code>Plug 'nvim-mini/mini.nvim'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>Plug 'nvim-mini/mini.pick'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.pick', { 'branch': 'stable' }</code></td>
-        </tr>
-    </tbody>
-</table>
-</details>
 
-<br>
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                         |
+    |--------|------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.nvim'`                         |
+    | Stable | `Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }` |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                         |
+    |--------|------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.pick'`                         |
+    | Stable | `Plug 'nvim-mini/mini.pick', { 'branch': 'stable' }` |
+
+</details>
 
 **Important**: don't forget to call `require('mini.pick').setup()` to enable its functionality.
 
 **Note**: if you are on Windows, there might be problems with too long file paths (like `error: unable to create file <some file name>: Filename too long`). Try doing one of the following:
+
 - Enable corresponding git global config value: `git config --system core.longpaths true`. Then try to reinstall.
+- Install plugin in other place with shorter path.
 
 ## Default config
 
