@@ -1,10 +1,7 @@
 --- *mini.pick* Pick anything
---- *MiniPick*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 ---
 --- - Single window general purpose interface for picking element from any array.
@@ -68,12 +65,11 @@
 ---
 --- Suggested dependencies (provide extra functionality, will work without them):
 ---
---- - Enabled |MiniIcons| module for icons near the items representing actual paths.
+--- - Enabled |mini.icons| module to show icons near the items for actual paths.
 ---   Falls back to 'nvim-tree/nvim-web-devicons' plugin or no icons will be used.
 ---
----                                                             *MiniPick-cli-tools*
---- - CLI tool(s) to power |MiniPick.builtin.files()|, |MiniPick.builtin.grep()|, and
----   |MiniPick.builtin.grep_live()| built-in pickers:
+--- - *MiniPick-cli-tools* CLI tool(s) to power |MiniPick.builtin.files()|,
+---   |MiniPick.builtin.grep()|, and |MiniPick.builtin.grep_live()| built-in pickers:
 ---     - `rg` (github.com/BurntSushi/ripgrep; enough for all three; recommended).
 ---     - `fd` (github.com/sharkdp/fd; for `files` only).
 ---     - `git` (github.com/git/git; enough for all three).
@@ -99,7 +95,7 @@
 ---
 --- # Comparisons ~
 ---
---- - 'nvim-telescope/telescope.nvim':
+--- - [nvim-telescope/telescope.nvim](https://github.com/nvim-telescope/telescope.nvim):
 ---     - The main inspiration for this module, so there is significant overlap.
 ---     - Has three (or two) window UI (prompt, matches, preview), while this
 ---       module combines everything in one window. It allows more straightforward
@@ -107,36 +103,35 @@
 ---     - Default match algorithm is somewhat slow, while this module should
 ---       match relatively lag-free for at least 100K+ items.
 ---     - Has many built-in pickers, while this module has handful at its core
----       relying on other 'mini.nvim' modules to provide more (see |MiniExtra|).
+---       relying on other 'mini.nvim' modules to provide more (see |mini.extra|).
 ---
---- - 'ibhagwan/fzf-lua':
+--- - [ibhagwan/fzf-lua](https://github.com/ibhagwan/fzf-lua):
 ---     - Mostly same comparison as with 'nvim-telescope/telescope.nvim'.
----     - Requires 'junegunn/fzf' installed to power fuzzy matching, while this
----       module provides built-in Lua matching.
+---     - Requires [junegunn/fzf](https://github.com/junegunn/fzf) installed to
+---       power fuzzy matching, while this module provides built-in Lua matching.
 ---
 --- # Highlight groups ~
 ---
---- * `MiniPickBorder` - window border.
---- * `MiniPickBorderBusy` - window border while picker is busy processing.
---- * `MiniPickBorderText` - non-prompt on border.
---- * `MiniPickCursor` - cursor during active picker (hidden by default).
---- * `MiniPickIconDirectory` - default icon for directory.
---- * `MiniPickIconFile` - default icon for file.
---- * `MiniPickHeader` - headers in info buffer and previews.
---- * `MiniPickMatchCurrent` - current matched item.
---- * `MiniPickMatchMarked` - marked matched items.
---- * `MiniPickMatchRanges` - ranges matching query elements.
---- * `MiniPickNormal` - basic foreground/background highlighting.
---- * `MiniPickPreviewLine` - target line in preview.
---- * `MiniPickPreviewRegion` - target region in preview.
---- * `MiniPickPrompt` - prompt.
---- * `MiniPickPromptCaret` - caret in prompt.
---- * `MiniPickPromptPrefix` - prefix of the prompt.
+--- - `MiniPickBorder` - window border.
+--- - `MiniPickBorderBusy` - window border while picker is busy processing.
+--- - `MiniPickBorderText` - non-prompt on border.
+--- - `MiniPickCursor` - cursor during active picker (hidden by default).
+--- - `MiniPickIconDirectory` - default icon for directory.
+--- - `MiniPickIconFile` - default icon for file.
+--- - `MiniPickHeader` - headers in info buffer and previews.
+--- - `MiniPickMatchCurrent` - current matched item.
+--- - `MiniPickMatchMarked` - marked matched items.
+--- - `MiniPickMatchRanges` - ranges matching query elements.
+--- - `MiniPickNormal` - basic foreground/background highlighting.
+--- - `MiniPickPreviewLine` - target line in preview.
+--- - `MiniPickPreviewRegion` - target region in preview.
+--- - `MiniPickPrompt` - prompt.
+--- - `MiniPickPromptCaret` - caret in prompt.
+--- - `MiniPickPromptPrefix` - prefix of the prompt.
 ---
---- To change any highlight group, modify it directly with |:highlight|.
+--- To change any highlight group, set it directly with |nvim_set_hl()|.
+---@tag MiniPick
 
---- Events ~
----
 --- To allow user customization and integration of external tools, certain |User|
 --- autocommand events are triggered under common circumstances:
 ---
@@ -145,12 +140,10 @@
 --- - `MiniPickStop` - just before picker is stopped.
 ---@tag MiniPick-events
 
---- # Overview ~
----
 --- General idea is to take array of objects, display them with interactive
 --- filter/sort/navigate/preview, and allow to choose one or more items.
 ---
---- ## How to start a picker ~
+--- # How to start a picker ~
 ---
 --- - Use |MiniPick.start()| with `opts.source` defining |MiniPick-source|.
 ---   Example: `MiniPick.start({ source = { items = vim.fn.readdir('.') } })`
@@ -161,7 +154,7 @@
 --- - Use |:Pick| command which uses customizable pickers from |MiniPick.registry|.
 ---   Example: `:Pick files tool='git'`
 ---
---- ## User interface ~
+--- # User interface ~
 ---
 --- UI consists from a single window capable of displaying three different views:
 --- - "Main" - where current query matches are shown.
@@ -181,7 +174,7 @@
 --- window border changes color to be `MiniPickBorderBusy` after `config.delay.busy`
 --- milliseconds of idle time.
 ---
---- ## Life cycle ~
+--- # Life cycle ~
 ---
 --- - Type characters to filter and sort matches. It uses |MiniPick.default_match()|
 ---   with `query` being an array of pressed characters.
@@ -204,7 +197,7 @@
 ---     - `<CR>` / `<M-CR>` chooses current/marked item(s).
 ---     - `<Esc>` / `<C-c>` stops picker.
 ---
---- ## Implementation details ~
+--- # Implementation details ~
 ---
 --- - Processing key typing is done via a dedicated key query process for more
 ---   control over their side effects. As a result, regular mappings don't work
@@ -217,7 +210,7 @@
 
 --- Source is defined as a `source` field inside one of (in increasing priority):
 --- - |MiniPick.config| - has global effect.
---- - |vim.b.minipick_config| - has buffer-local effect.
+--- - `vim.b.minipick_config` - has buffer-local effect.
 --- - `opts.source` in picker call - has effect for that particular call.
 ---
 --- Example of source to choose from |arglist|: >lua
@@ -227,8 +220,8 @@
 --- Note: this is mostly useful for writing pickers. Can safely skip if you
 --- want to just use provided pickers.
 ---
----                                                          *MiniPick-source.items*
 --- # Items ~
+--- *MiniPick-source.items*
 ---
 --- `source.items` defines items to choose from. It should be one of the following:
 --- - Array of objects which can have different types. Any type is allowed.
@@ -236,7 +229,7 @@
 --- - Callable returning any of the previous types. Will be called once on start
 ---   with source's `cwd` set as |current-directory|.
 ---
----                                                 *MiniPick-source.items-stritems*
+--- *MiniPick-source.items-stritems*
 --- Matching is done for items array based on the string representation of its
 --- elements (here called "stritems"). For single item it is computed as follows:
 --- - Callable is called once with output used in next steps.
@@ -251,7 +244,7 @@
 --- <
 --- Default value is `nil`, assuming it always be supplied by the caller.
 ---
----                                                   *MiniPick-source.items-common*
+--- *MiniPick-source.items-common*
 --- There are some recommendations for common item types in order for them to work
 --- out of the box with |MiniPick.default_show()|, |MiniPick.default_preview()|,
 --- |MiniPick.default_choose()|, |MiniPick.default_choose_marked()|:
@@ -292,15 +285,15 @@
 --- <
 --- Note: all table items will benefit from having `text` field for better matching.
 ---
----                                                           *MiniPick-source.name*
 --- # Name ~
+--- *MiniPick-source.name*
 ---
 --- `source.name` defines the name of the picker to be used for visual feedback.
 ---
 --- Default value is "<No name>".
 ---
----                                                            *MiniPick-source.cwd*
 --- # Current working directory ~
+--- *MiniPick-source.cwd*
 ---
 --- `source.cwd` is a string defining the current working directory in which
 --- picker operates. It should point to a valid actually present directory path.
@@ -313,8 +306,8 @@
 ---
 --- Default value is |current-directory|.
 ---
----                                                          *MiniPick-source.match*
 --- # Match ~
+--- *MiniPick-source.match*
 ---
 --- `source.match` is a callable defining how stritems
 --- (see |MiniPick-source.items-stritems|) are matched (filtered and sorted) based
@@ -360,8 +353,8 @@
 --- <
 --- Default value is |MiniPick.default_match()|.
 ---
----                                                           *MiniPick-source.show*
 --- # Show ~
+--- *MiniPick-source.show*
 ---
 --- `source.show` is a callable defining how matched items are shown in the window.
 ---
@@ -385,8 +378,8 @@
 --- <
 --- Default value is |MiniPick.default_show()|.
 ---
----                                                        *MiniPick-source.preview*
 --- # Preview ~
+--- *MiniPick-source.preview*
 ---
 --- `source.preview` is a callable defining how item preview is done.
 ---
@@ -406,8 +399,8 @@
 --- <
 --- Default value is |MiniPick.default_preview()|.
 ---
----                                                         *MiniPick-source.choose*
 --- # Choose an item ~
+--- *MiniPick-source.choose*
 ---
 --- `source.choose` is a callable defining what to do when an item is chosen.
 ---
@@ -435,8 +428,8 @@
 --- <
 --- Default value is |MiniPick.default_choose()|.
 ---
----                                                  *MiniPick-source.choose_marked*
 --- # Choose marked items ~
+--- *MiniPick-source.choose_marked*
 ---
 --- `source.choose_marked` is a callable defining what to do when marked items
 --- (see |MiniPick-actions-mark|) are chosen. Serves as a companion to
@@ -468,16 +461,17 @@
 ---
 ---
 --- # Built-in ~
----                                                         *MiniPick-actions-caret*
+---
 --- ## Caret ~
+--- *MiniPick-actions-caret*
 ---
 --- User can add character not only at query end, but more generally at caret.
 ---
 --- - `mappings.caret_left` - move caret to left.
 --- - `mappings.caret_right` - move caret to right.
 ---
----                                                        *MiniPick-actions-choose*
 --- ## Choose ~
+--- *MiniPick-actions-choose*
 ---
 --- Choose is a fundamental action that actually implements the intent of
 --- calling a picker, i.e. pick an item.
@@ -490,8 +484,8 @@
 --- - `mappings.choose_marked` - choose marked items as is, i.e.
 ---   apply `source.choose_marked` at current marked items.
 ---
----                                                        *MiniPick-actions-delete*
 --- ## Delete ~
+--- *MiniPick-actions-delete*
 ---
 --- Delete actions are for deleting elements from query.
 ---
@@ -500,8 +494,8 @@
 --- - `mappings.delete_left` - delete everything to the left (like |i_CTRL-U|).
 --- - `mappings.delete_word` - delete word to the left (like |i_CTRL-W|).
 ---
----                                                          *MiniPick-actions-mark*
 --- ## Mark ~
+--- *MiniPick-actions-mark*
 ---
 --- Marking is an action of adding certain items to a separate list which then can
 --- be chosen with `mappings.choose_marked` (for example, sent to quickfix list).
@@ -516,8 +510,8 @@
 ---   with marking all matches several times and marked items from all queries
 ---   will be preserved.
 ---
----                                                          *MiniPick-actions-move*
 --- ## Move ~
+--- *MiniPick-actions-move*
 ---
 --- Move is a fundamental action of changing which item is current.
 ---
@@ -534,8 +528,8 @@
 ---     - `<Home>` moves to first matched.
 ---     - `<Up>` moves up.
 ---
----                                                         *MiniPick-actions-paste*
 --- ## Paste ~
+--- *MiniPick-actions-paste*
 ---
 --- Paste is an action to paste content of |registers| at caret.
 ---
@@ -547,8 +541,8 @@
 ---   <C-w> (as |c_CTRL-R_CTRL-W|), <C-a> (as |c_CTRL-R_CTRL-A|),
 ---   <C-l> (as |c_CTRL-R_CTRL-L|).
 ---
----                                                        *MiniPick-actions-refine*
 --- ## Refine ~
+--- *MiniPick-actions-refine*
 ---
 --- Refine is an action that primarily executes the following:
 --- - Takes certain items and makes them be all items (in order they are present).
@@ -556,7 +550,7 @@
 --- - Updates `source.match` to be the one from config.
 ---
 --- - `mappings.refine` - refine currently matched items.
---- - `mappings.refin_marked` - refine currently marked items.
+--- - `mappings.refine_marked` - refine currently marked items.
 ---
 --- This action is useful in at least two cases:
 --- - Perform consecutive "narrowing" queries. Example: to get items that contain
@@ -565,8 +559,8 @@
 ---   another "'world".
 --- - Reset `match` to default. Particularly useful in |MiniPick.builtin.grep_live()|.
 ---
----                                                        *MiniPick-actions-scroll*
 --- ## Scroll ~
+--- *MiniPick-actions-scroll*
 ---
 --- Scroll is an action to either move current item focus further than to the
 --- neighbor item or adjust window view to see more information.
@@ -578,14 +572,14 @@
 --- - `mappings.scroll_up` - when matches are shown, go up by the amount of
 ---   visible matches. In preview and info view - scroll up as with |CTRL-B|.
 ---
----                                                          *MiniPick-actions-stop*
 --- ## Stop ~
+--- *MiniPick-actions-stop*
 ---
 --- `mappings.stop` stops the picker. <C-c> also always stops the picker.
 ---
 ---
----                                                        *MiniPick-actions-toggle*
 --- ## Toggle ~
+--- *MiniPick-actions-toggle*
 ---
 --- Toggle action is a way to change view: show if target is not shown, reset to
 --- main view otherwise.
@@ -597,8 +591,8 @@
 --- - Updating query in any way resets window view to show matches.
 --- - Moving current item focus keeps preview or info view with updated item.
 ---
----                                                        *MiniPick-actions-custom*
 --- # Custom ~
+--- *MiniPick-actions-custom*
 ---
 --- Along with built-in actions, users can define custom actions. This can be
 --- done by supplying custom elements to `mappings` table. The field defines action
@@ -619,14 +613,15 @@
 --- <
 ---@tag MiniPick-actions
 
---- Common configuration examples ~
+--- # Disable icons ~
 ---
---- - Disable icons in |MiniPick.builtin| pickers related to paths: >lua
+--- Disable icons in |MiniPick.builtin| pickers related to paths: >lua
 ---
 ---   local pick = require('mini.pick')
 ---   pick.setup({ source = { show = pick.default_show } })
 --- <
---- - Mappings to switch `toggle_{preview,info}` and `move_{up,down}`: >lua
+--- # Switch toggle and move keys ~
+--- >lua
 ---
 ---   require('mini.pick').setup({
 ---     mappings = {
@@ -637,7 +632,8 @@
 ---     }
 ---   })
 --- <
---- - Different window styles: >lua
+--- # Different window styles: ~
+--- >lua
 ---
 ---   -- Different border
 ---   { window = { config = { border = 'double' } } }
@@ -684,7 +680,9 @@ local H = {}
 
 --- Module setup
 ---
----                                                                          *:Pick*
+--- # :Pick ~
+--- *:Pick*
+---
 --- Calling this function creates a `:Pick` user command. It takes picker name
 --- from |MiniPick.registry| as mandatory first argument and executes it with
 --- following (expanded, |expandcmd()|) |<f-args>| combined in a single table.
@@ -737,9 +735,7 @@ MiniPick.setup = function(config)
 end
 
 --stylua: ignore
---- Module config
----
---- Default values:
+--- Defaults ~
 ---@eval return MiniDoc.afterlines_to_code(MiniDoc.current.eval_section)
 ---@text # Delays ~
 ---
@@ -993,7 +989,7 @@ end
 ---   |        |                        |
 ---   | ab c   | abc_, _abc, ab_c       |
 ---   | *ab c  | None (no " " in items) |
----
+--- <
 --- Having query `{ 'ab', 'c' }` is the same as "ab c" prompt.
 ---
 --- You can have a feel of how this works with this command: >lua
@@ -1039,13 +1035,13 @@ end
 ---
 --- Implements default value for |MiniPick-source.show|.
 ---
---- Uses the following highlight groups (see |MiniPick| for their description):
+--- Uses the following highlight groups (see |mini.pick| for their description):
 ---
---- * `MiniPickIconDirectory`
---- * `MiniPickIconFile`
---- * `MiniPickMatchCurrent`
---- * `MiniPickMatchMarked`
---- * `MiniPickMatchRanges`
+--- - `MiniPickIconDirectory`
+--- - `MiniPickIconFile`
+--- - `MiniPickMatchCurrent`
+--- - `MiniPickMatchMarked`
+--- - `MiniPickMatchRanges`
 ---
 ---@param buf_id number Identifier of target buffer.
 ---@param items table Array of items to show.
@@ -1126,10 +1122,10 @@ end
 ---
 --- Implements default value for |MiniPick-source.preview|.
 ---
---- Uses the following highlight groups (see |MiniPick| for their description):
+--- Uses the following highlight groups (see |mini.pick| for their description):
 ---
---- * `MiniPickPreviewLine`
---- * `MiniPickPreviewRegion`
+--- - `MiniPickPreviewLine`
+--- - `MiniPickPreviewRegion`
 ---
 ---@param buf_id number Identifier of target buffer.
 ---@param item any Item to preview.
@@ -1721,7 +1717,7 @@ end
 ---   - <postprocess> `(function)` - callable performing postprocessing of output.
 ---     Will be called with array of lines as input, should return array of items.
 ---     Default: removes trailing empty lines and uses rest as string items.
----   - <spawn_opts> `(table)` - `options` for |uv.spawn|, except `args` and `stdio` fields.
+---   - <spawn_opts> `(table)` - `options` for |uv.spawn()|, except `args` and `stdio`.
 ---     Note: relative `cwd` path is resolved against active picker's `cwd`.
 ---   - <set_items_opts> `(table)` - table forwarded to |MiniPick.set_picker_items()|.
 ---
