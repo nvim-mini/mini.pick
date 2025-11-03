@@ -9,15 +9,17 @@ See more details in [Features](#features) and [Documentation](doc/mini-pick.txt)
 > [!NOTE]
 > This was previously hosted at a personal `echasnovski` GitHub account. It was transferred to a dedicated organization to improve long term project stability. See more details [here](https://github.com/nvim-mini/mini.nvim/discussions/1970).
 
-⦿ This is a part of [mini.nvim](https://github.com/nvim-mini/mini.nvim) library. Please use [this link](https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-pick.md) if you want to mention this module.
+⦿ This is a part of [mini.nvim](https://nvim-mini.org/mini.nvim) library. Please use [this link](https://nvim-mini.org/mini.nvim/readmes/mini-pick) if you want to mention this module.
 
 ⦿ All contributions (issues, pull requests, discussions, etc.) are done inside of 'mini.nvim'.
 
-⦿ See the repository page to learn about common design principles and configuration recipes.
+⦿ See [whole library documentation](https://nvim-mini.org/mini.nvim/doc/mini-nvim) to learn about general design principles, disable/configuration recipes, and more.
+
+⦿ See [MiniMax](https://nvim-mini.org/MiniMax) for a full config example that uses this module.
 
 ---
 
-If you want to help this project grow but don't know where to start, check out [contributing guides of 'mini.nvim'](https://github.com/nvim-mini/mini.nvim/blob/main/CONTRIBUTING.md) or leave a Github star for 'mini.nvim' project and/or any its standalone Git repositories.
+If you want to help this project grow but don't know where to start, check out [contributing guides of 'mini.nvim'](https://nvim-mini.org/mini.nvim/CONTRIBUTING) or leave a Github star for 'mini.nvim' project and/or any its standalone Git repositories.
 
 ## Demo
 
@@ -71,7 +73,7 @@ Notes:
 
 - Works on all supported versions but Neovim>=0.10 will give more visual feedback in floating window footer.
 
-- For more pickers see ['mini.extra'](https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-extra.md).
+- For more pickers see ['mini.extra'](https://nvim-mini.org/mini.nvim/readmes/mini-extra).
 
 - CLI tools are called only with basic arguments needed to get items. To customize the output, use their respective configuration approaches. Here are some examples of where to start:
   - [ripgrep](https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md#configuration-file)
@@ -90,7 +92,7 @@ For more information see these parts of help:
 
 For full experience needs (still works without any of suggestions):
 
-- Enabled ['mini.icons'](https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-icons.md) module for icons near the items representing actual paths. Can fall back to using [nvim-tree/nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons) plugin.
+- Enabled ['mini.icons'](https://nvim-mini.org/mini.nvim/readmes/mini-icons) module for icons near the items representing actual paths. Can fall back to using [nvim-tree/nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons) plugin.
 
 - Executable [BurntSushi/ripgrep](https://github.com/BurntSushi/ripgrep) CLI tool for faster file and pattern search on disk.
 
@@ -164,7 +166,7 @@ There are two branches to install from:
 Here are code snippets for some common installation methods (use only one):
 
 <details>
-<summary>With <a href="https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-deps.md">mini.deps</a></summary>
+<summary>With <a href="https://nvim-mini.org/mini.nvim/readmes/mini-deps">mini.deps</a></summary>
 
 - 'mini.nvim' library:
 
