@@ -1325,6 +1325,8 @@ end
 ---
 --- To customize CLI tool search, either use tool's global configuration approach
 --- or directly |MiniPick.builtin.cli()| with specific command.
+--- Options 'ignorecase' and 'smartcase' are respected via forcing appropriate
+--- flags to CLI tool (i.e. overriding tool's global config).
 ---
 ---@param local_opts __pick_builtin_local_opts
 ---   Possible fields:
@@ -1362,6 +1364,8 @@ end
 --- `rg`, `git`. If none is present, error is thrown (for performance reasons).
 ---
 --- To customize search, use tool's global configuration approach.
+--- Options 'ignorecase' and 'smartcase' are respected via forcing appropriate
+--- flags to CLI tool (i.e. overriding tool's global config).
 ---
 ---@param local_opts __pick_builtin_local_opts
 ---   Possible fields:
@@ -3433,7 +3437,8 @@ H.grep_get_command = function(tool, pattern, globs)
       -- NOTE: no `*` as default is important to not "override" ignoring files
       table.insert(res, g)
     end
-    vim.list_extend(res, { '--', pattern })
+    local case = vim.o.ignorecase and (vim.o.smartcase and 'smart-case' or 'ignore-case') or 'case-sensitive'
+    vim.list_extend(res, { '--' .. case,  '--', pattern })
     return res
   end
   if tool == 'git' then

@@ -1117,6 +1117,8 @@ Lua pattern matches (NOT recommended in large directories).
 
 To customize CLI tool search, either use tool's global configuration approach
 or directly |MiniPick.builtin.cli()| with specific command.
+Options 'ignorecase' and 'smartcase' are respected via forcing appropriate
+flags to CLI tool (i.e. overriding tool's global config).
 
 Parameters ~
 {local_opts} `(table|nil)` Options defining behavior of this particular picker.
@@ -1143,6 +1145,8 @@ Tries to use one of the CLI tools to create items (see |MiniPick-cli-tools|):
 `rg`, `git`. If none is present, error is thrown (for performance reasons).
 
 To customize search, use tool's global configuration approach.
+Options 'ignorecase' and 'smartcase' are respected via forcing appropriate
+flags to CLI tool (i.e. overriding tool's global config).
 
 Parameters ~
 {local_opts} `(table|nil)` Options defining behavior of this particular picker.
