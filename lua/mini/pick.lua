@@ -2281,6 +2281,7 @@ H.picker_compute_win_config = function(win_config, is_for_open)
   local max_height = vim.o.lines - vim.o.cmdheight - (has_tabline and 1 or 0) - (has_statusline and 1 or 0)
   local max_width = vim.o.columns
 
+  local winborder = vim.fn.exists('+winborder') == 0 and '' or vim.o.winborder
   local default_config = {
     relative = 'editor',
     anchor = 'SW',
@@ -2288,7 +2289,7 @@ H.picker_compute_win_config = function(win_config, is_for_open)
     height = math.floor(0.618 * max_height),
     col = 0,
     row = max_height + (has_tabline and 1 or 0),
-    border = (vim.fn.exists('+winborder') == 1 and vim.o.winborder ~= '') and vim.o.winborder or 'single',
+    border = winborder == '' and 'single' or nil,
     style = 'minimal',
     noautocmd = is_for_open,
     -- Use high enough value to be on top of built-in windows (pmenu, etc.)
@@ -2297,7 +2298,7 @@ H.picker_compute_win_config = function(win_config, is_for_open)
   local config = vim.tbl_deep_extend('force', default_config, H.expand_callable(win_config) or {})
 
   -- Tweak config values to ensure they are proper
-  if config.border == 'none' then config.border = { '', ' ', '', '', '', ' ', '', '' } end
+  if (config.border or winborder) == 'none' then config.border = { '', ' ', '', '', '', ' ', '', '' } end
   -- - Adjust dimensions accounting for actually present border parts
   local bor, n = config.border, type(config.border) == 'table' and #config.border or 0
   local height_offset = n == 0 and 2 or ((bor[1 % n + 1] == '' and 0 or 1) + (bor[5 % n + 1] == '' and 0 or 1))
