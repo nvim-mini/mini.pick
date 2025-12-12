@@ -1699,8 +1699,8 @@ MiniPick.get_picker_query = function() return vim.deepcopy((H.pickers.active or 
 ---@seealso |MiniPick.get_picker_items()| and |MiniPick.get_picker_stritems()|
 MiniPick.set_picker_items = function(items, opts)
   if not H.islist(items) then H.error('`items` should be an array.') end
-  if not MiniPick.is_picker_active() then return end
   opts = vim.tbl_deep_extend('force', { do_match = true, querytick = nil }, opts or {})
+  if not MiniPick.is_picker_active() then return end
 
   -- Set items in async because computing lower `stritems` can block much time
   coroutine.wrap(H.picker_set_items)(H.pickers.active, items, opts)
@@ -1728,11 +1728,11 @@ end
 ---
 ---@seealso |MiniPick.get_picker_items()| and |MiniPick.get_picker_stritems()|
 MiniPick.set_picker_items_from_cli = function(command, opts)
-  if not MiniPick.is_picker_active() then return end
   local is_valid_command = H.is_array_of(command, 'string') and #command >= 1
   if not is_valid_command then H.error('`command` should be an array of strings.') end
   local default_opts = { postprocess = H.cli_postprocess, set_items_opts = {}, spawn_opts = {} }
   opts = vim.tbl_deep_extend('force', default_opts, opts or {})
+  if not MiniPick.is_picker_active() then return end
 
   local executable, args = command[1], vim.list_slice(command, 2, #command)
   local process, pid, stdout = nil, nil, vim.loop.new_pipe()
@@ -1779,10 +1779,11 @@ end
 ---
 ---@seealso |MiniPick.get_picker_matches()|
 MiniPick.set_picker_match_inds = function(match_inds, match_type)
-  if not MiniPick.is_picker_active() then return end
   if not H.is_array_of(match_inds, 'number') then H.error('`match_inds` should be an array of numbers.') end
   local set = H.picker_set_inds[match_type or 'all']
   if set == nil then H.error('`match_type` should be one of "all", "marked", "current"') end
+  if not MiniPick.is_picker_active() then return end
+
   set(H.pickers.active, match_inds)
   H.picker_update(H.pickers.active, false)
 end
@@ -1807,8 +1808,8 @@ end
 ---
 ---@seealso |MiniPick.get_picker_state()|
 MiniPick.set_picker_target_window = function(win_id)
-  if not MiniPick.is_picker_active() then return end
   if not H.is_valid_win(win_id) then H.error('`win_id` is not a valid window identifier.') end
+  if not MiniPick.is_picker_active() then return end
   H.pickers.active.windows.target = win_id
 end
 
@@ -1818,8 +1819,8 @@ end
 ---
 ---@seealso |MiniPick.get_picker_query()|
 MiniPick.set_picker_query = function(query)
-  if not MiniPick.is_picker_active() then return end
   if not H.is_array_of(query, 'string') then H.error('`query` should be an array of strings.') end
+  if not MiniPick.is_picker_active() then return end
 
   H.pickers.active.query, H.pickers.active.caret = vim.deepcopy(query), #query + 1
   H.querytick = H.querytick + 1
