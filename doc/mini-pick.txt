@@ -393,7 +393,9 @@ It will be called with the following arguments:
   of item previewing new scratch buffer is be created.
 - `item` - item to preview.
 
-It should update buffer `buf_id` to visually represent `item`.
+It should update buffer `buf_id` to visually represent `item`. It can also
+directly set another buffer in picker's main window, but usually it is more
+robust to update given `buf_id` directly.
 
 Example: >lua
 

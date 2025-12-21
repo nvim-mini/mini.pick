@@ -388,7 +388,9 @@
 ---   of item previewing new scratch buffer is be created.
 --- - `item` - item to preview.
 ---
---- It should update buffer `buf_id` to visually represent `item`.
+--- It should update buffer `buf_id` to visually represent `item`. It can also
+--- directly set another buffer in picker's main window, but usually it is more
+--- robust to update given `buf_id` directly.
 ---
 --- Example: >lua
 ---
@@ -2959,7 +2961,7 @@ H.picker_show_preview = function(picker)
   vim.bo[buf_id].bufhidden = 'wipe'
   H.set_winbuf(win_id, buf_id)
   preview(buf_id, item)
-  picker.buffers.preview = buf_id
+  picker.buffers.preview = vim.api.nvim_win_get_buf(win_id)
   picker.view_state = 'preview'
 end
 
