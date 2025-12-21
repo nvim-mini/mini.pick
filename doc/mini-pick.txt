@@ -631,7 +631,6 @@ Disable icons in |MiniPick.builtin| pickers related to paths: >lua
 <
 # Switch toggle and move keys ~
 >lua
-
   require('mini.pick').setup({
     mappings = {
       toggle_info    = '<C-k>',
@@ -641,9 +640,8 @@ Disable icons in |MiniPick.builtin| pickers related to paths: >lua
     }
   })
 <
-# Different window styles: ~
+# Different window styles ~
 >lua
-
   -- Different border
   { window = { config = { border = 'double' } } }
 

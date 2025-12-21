@@ -625,7 +625,6 @@
 --- <
 --- # Switch toggle and move keys ~
 --- >lua
----
 ---   require('mini.pick').setup({
 ---     mappings = {
 ---       toggle_info    = '<C-k>',
@@ -635,9 +634,8 @@
 ---     }
 ---   })
 --- <
---- # Different window styles: ~
+--- # Different window styles ~
 --- >lua
----
 ---   -- Different border
 ---   { window = { config = { border = 'double' } } }
 ---
