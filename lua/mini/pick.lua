@@ -1799,7 +1799,8 @@ MiniPick.set_picker_opts = function(opts)
   picker.opts = vim.tbl_deep_extend('force', picker.opts, opts or {})
   picker.action_keys = H.normalize_mappings(picker.opts.mappings)
   if cur_cwd ~= picker.opts.source.cwd then H.win_set_cwd(picker.windows.main, picker.opts.source.cwd) end
-  H.picker_update(picker, true, true)
+  local do_match = ((opts or {}).source or {}).match ~= nil
+  H.picker_update(picker, do_match, true)
 end
 
 --- Set target window for active picker
