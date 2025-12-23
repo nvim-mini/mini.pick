@@ -3406,7 +3406,9 @@ end
 H.files_get_command = function(tool)
   if tool == 'rg' then return { 'rg', '--files', '--color=never' } end
   if tool == 'fd' then return { 'fd', '--type=f', '--color=never' } end
-  if tool == 'git' then return { 'git', 'ls-files', '--cached', '--others', '--exclude-standard' } end
+  if tool == 'git' then
+    return { 'git', '-c', 'core.quotepath=false', 'ls-files', '--cached', '--others', '--exclude-standard' }
+  end
   H.error([[Wrong 'tool' for `files` builtin.]])
 end
 
