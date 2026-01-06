@@ -422,7 +422,7 @@
 ---   local choose_file_continue = function(item)
 ---     if vim.fn.filereadable(item) == 0 then return end
 ---     vim.api.nvim_win_call(
----       MiniPick.get_picker_state().windows.main,
+---       MiniPick.get_picker_state().windows.target,
 ---       function() vim.cmd('edit ' .. item) end
 ---     )
 ---     return true
