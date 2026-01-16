@@ -2262,10 +2262,12 @@ H.picker_new_win = function(buf_id, win_config, cwd)
   local win_id = vim.api.nvim_open_win(buf_id, true, H.picker_compute_win_config(win_config, true))
 
   -- Set window-local data
+  local opts_scope = { scope = 'local', win = win_id }
   vim.wo[win_id].foldenable = false
   vim.wo[win_id].foldmethod = 'manual'
-  vim.wo[win_id].list = true
-  vim.wo[win_id].listchars = 'extends:…'
+  -- TODO: Use vim.wo[win_id][0] after compatibility with Neovim=0.9 is dropped
+  vim.api.nvim_set_option_value('list', true, opts_scope)
+  vim.api.nvim_set_option_value('listchars', 'extends:…,precedes:…', opts_scope)
   vim.wo[win_id].scrolloff = 0
   vim.wo[win_id].wrap = false
   H.win_update_hl(win_id, 'NormalFloat', 'MiniPickNormal')
@@ -2605,8 +2607,9 @@ H.picker_set_bordertext = function(picker)
     config.title, config.footer = config.footer, config.title
   end
 
+  local win_list_option = vim.api.nvim_get_option_value('list', { scope = 'local', win = win_id })
   vim.api.nvim_win_set_config(win_id, config)
-  vim.wo[win_id].list = true
+  vim.api.nvim_set_option_value('list', win_list_option, { scope = 'local', win = win_id })
 end
 
 H.picker_compute_footer = function(picker, win_id)
@@ -2882,6 +2885,7 @@ end
 
 H.picker_show_main = function(picker)
   H.set_winbuf(picker.windows.main, picker.buffers.main)
+  vim.api.nvim_set_option_value('list', true, { scope = 'local', win = picker.windows.main })
   picker.view_state = 'main'
 end
 
@@ -2959,6 +2963,7 @@ H.picker_show_preview = function(picker)
   local win_id, buf_id = picker.windows.main, H.create_scratch_buf('preview')
   vim.bo[buf_id].bufhidden = 'wipe'
   H.set_winbuf(win_id, buf_id)
+  vim.api.nvim_set_option_value('list', vim.go.list, { scope = 'local', win = win_id })
   preview(buf_id, item)
   picker.buffers.preview = vim.api.nvim_win_get_buf(win_id)
   picker.view_state = 'preview'
