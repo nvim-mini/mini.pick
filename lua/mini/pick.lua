@@ -1346,7 +1346,8 @@ MiniPick.builtin.grep = function(local_opts, opts)
   local default_opts = { source = { name = string.format('Grep (%s%s)', tool, name_suffix), show = show } }
   opts = vim.tbl_deep_extend('force', default_opts, opts or {})
 
-  local pattern = type(local_opts.pattern) == 'string' and local_opts.pattern or vim.fn.input('Grep pattern: ')
+  local pattern = type(local_opts.pattern) == 'string' and local_opts.pattern or H.user_input('Grep pattern')
+  if pattern == nil then return end
   if tool == 'fallback' then
     local cwd = H.full_path(opts.source.cwd or vim.fn.getcwd())
     opts.source.items = function() H.grep_fallback_items(pattern, cwd) end
@@ -1896,6 +1897,7 @@ H.ns_id = {
   headers = vim.api.nvim_create_namespace('MiniPickHeaders'),
   preview = vim.api.nvim_create_namespace('MiniPickPreview'),
   ranges = vim.api.nvim_create_namespace('MiniPickRanges'),
+  input = vim.api.nvim_create_namespace('MiniPickInput'),
 }
 
 -- Timers
@@ -3698,6 +3700,20 @@ H.parse_uri = function(x)
   -- Don't accept Windows paths with volume letter as URI
   if H.is_windows and x:find('^%a:') ~= nil and path:find('^%a:') ~= nil then return nil end
   return path
+end
+
+H.user_input = function(prompt, text)
+  -- Use `on_key` to distinguish cancel with `<Esc>` and immediate `<CR>`
+  local was_cancelled = false
+  vim.on_key(function(key) was_cancelled = was_cancelled or key == '\27' end, H.ns_id.input)
+
+  -- Ask for input. Use `pcall` to allow `<C-c>` to cancel user input
+  vim.cmd('echohl Question')
+  local ok, res = pcall(vim.fn.input, { prompt = '(mini.pick) ' .. prompt .. ': ', default = text or '' })
+  vim.cmd('echohl None | echo "" | redraw')
+
+  vim.on_key(nil, H.ns_id.input)
+  return (ok and not was_cancelled) and res or nil
 end
 
 -- TODO: Remove after compatibility with Neovim=0.9 is dropped
