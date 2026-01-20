@@ -1761,11 +1761,8 @@ MiniPick.set_picker_items_from_cli = function(command, opts)
   stdout:read_start(function(err, data)
     assert(not err, err)
     if data ~= nil then return table.insert(data_feed, data) end
-
-    local items = vim.split(table.concat(data_feed), '\r?\n')
-    data_feed = nil
     stdout:close()
-    vim.schedule(function() MiniPick.set_picker_items(opts.postprocess(items), opts.set_items_opts) end)
+    coroutine.wrap(H.set_picker_items_from_feed)(data_feed, '\r?\n', opts)
   end)
 
   return { pid = pid, kill = kill }
@@ -3401,6 +3398,44 @@ H.choose_set_cursor = function(win_id, lnum, col)
 end
 
 -- Builtins -------------------------------------------------------------------
+-- Stdout feed is the final result split into unknown places. This function is
+-- a longer version of `vim.split(table.concat(feed, ''), '\r?\n')` but allows
+-- to interrupt computation and doesn't create big string for the whole feed.
+H.set_picker_items_from_feed = function(feed, pattern, opts)
+  -- Check active picker as `poke_picker()` will always be `true` in this case
+  if not MiniPick.is_picker_active() then return end
+
+  -- NOTE: For intended effect, relies on presence of the active coroutine
+  local poke_picker = H.poke_picker_throttle(H.querytick)
+
+  -- Realign feed so that each one ends in a pattern
+  for i = 2, #feed do
+    if not poke_picker() then return end
+    local _, to = feed[i]:find(pattern)
+    -- Account for chunks with no matches. Possibly several in a row.
+    to = to or feed[i]:len()
+    local j = i - 1
+    while j > 1 and feed[j] == '' do
+      j = j - 1
+    end
+    feed[j], feed[i] = feed[j] .. feed[i]:sub(1, to), feed[i]:sub(to + 1)
+  end
+
+  local res, insert = {}, table.insert
+  for i = 1, #feed do
+    -- Poke once per feed item and not match, because latter is too much and
+    -- might be less performant as each poke computes time.
+    if not poke_picker() then return end
+    for s in vim.gsplit(feed[i], pattern, { trimempty = true }) do
+      insert(res, s)
+    end
+    -- Cleanup
+    feed[i] = nil
+  end
+
+  vim.schedule(function() MiniPick.set_picker_items(opts.postprocess(res), opts.set_items_opts) end)
+end
+
 H.cli_postprocess = function(items)
   while items[#items] == '' do
     items[#items] = nil
