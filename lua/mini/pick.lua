@@ -3623,9 +3623,9 @@ H.set_curwin = function(win_id)
   if not H.is_valid_win(win_id) then return end
   -- Explicitly preserve cursor to fix Neovim<0.10 after choosing position in
   -- already shown buffer
-  local cursor = vim.api.nvim_win_get_cursor(win_id)
+  local buf_id, cursor = vim.api.nvim_win_get_buf(win_id), vim.api.nvim_win_get_cursor(win_id)
   vim.api.nvim_set_current_win(win_id)
-  H.set_cursor(win_id, cursor[1], cursor[2] + 1)
+  if buf_id == vim.api.nvim_win_get_buf(win_id) then H.set_cursor(win_id, cursor[1], cursor[2] + 1) end
 end
 
 H.clear_namespace = function(buf_id, ns_id) pcall(vim.api.nvim_buf_clear_namespace, buf_id, ns_id, 0, -1) end
