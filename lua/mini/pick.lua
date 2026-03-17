@@ -203,6 +203,8 @@
 ---   control over their side effects. As a result, regular mappings don't work
 ---   here and picker's window needs to be current as long as it is shown.
 ---   Changing window focus leads to automatic picker stop (after small delay).
+---   Not picker related screen changes require explicit |:redraw|, like for
+---   asynchronous syntax highlighting in preview to be visible immediately.
 --- - Any picker is non-blocking but waits to return the chosen item. Example:
 ---   `file = MiniPick.builtin.files()` allows other actions to be executed when
 ---   picker is shown while still assigning `file` with value of the chosen item.
@@ -743,7 +745,7 @@ end
 --- `config.delay` defines plugin delays (in ms). All should be strictly positive.
 ---
 --- `delay.async` is a delay between forcing asynchronous behavior. This usually
---- means making screen redraws and utilizing |MiniPick.poke_is_picker_active()|
+--- means forcing |:redraw| in preview and using |MiniPick.poke_is_picker_active()|
 --- (for example, to stop current matching if query has updated).
 --- Smaller values give smoother user experience at the cost of more computations.
 ---
@@ -1454,8 +1456,7 @@ MiniPick.builtin.help = function(local_opts, opts)
     vim.api.nvim_buf_call(buf_id, function()
       vim.cmd('noautocmd edit ' .. vim.fn.fnameescape(item.filename))
       vim.bo.buftype, vim.bo.buflisted, vim.bo.bufhidden = 'nofile', false, 'wipe'
-      local has_ts = pcall(vim.treesitter.start, 0)
-      if not has_ts then vim.bo.syntax = 'help' end
+      H.enable_hl(vim.api.nvim_get_current_buf(), nil, 'help')
 
       local cache_hlsearch = vim.v.hlsearch
       -- Make a "very nomagic" search to account for special characters in tag
@@ -1911,7 +1912,6 @@ H.ns_id = {
 H.timers = {
   busy = vim.loop.new_timer(),
   focus = vim.loop.new_timer(),
-  getcharstr = vim.loop.new_timer(),
 }
 
 -- Pickers
@@ -2217,7 +2217,7 @@ H.picker_advance = function(picker)
     if H.cache.is_force_stop_advance then break end
     H.picker_update(picker, do_match)
 
-    local char = H.getcharstr(picker.opts.delay.async, lmap)
+    local char = H.getcharstr(lmap)
     if H.cache.is_force_stop_advance then break end
 
     is_aborted = char == nil
@@ -2252,7 +2252,7 @@ H.picker_update = function(picker, do_match, update_window)
   end
   H.picker_set_bordertext(picker)
   H.picker_set_lines(picker)
-  H.redraw()
+  vim.cmd('redraw')
 end
 
 H.picker_new_buf = function()
@@ -2879,7 +2879,7 @@ H.picker_get_current_item = function(picker)
 end
 
 H.picker_get_register_contents = function(picker)
-  local register = H.getcharstr(picker.opts.delay.async, {})
+  local register = H.getcharstr({})
   -- Mimic some "insert object under cursor" behavior of Command-line mode
   local expand_var = ({ ['\1'] = '<cWORD>', ['\6'] = '<cfile>', ['\23'] = '<cword>' })[register]
   if expand_var then
@@ -3330,11 +3330,7 @@ H.preview_set_lines = function(buf_id, lines, extra)
     local ft = extra.filetype or vim.filetype.match({ buf = buf_id, filename = extra.path })
     local has_lang, lang = pcall(vim.treesitter.language.get_lang, ft)
     lang = has_lang and lang or ft
-    -- TODO: Remove `opts.error` after compatibility with Neovim=0.11 is dropped
-    local has_parser, parser = pcall(vim.treesitter.get_parser, buf_id, lang, { error = false })
-    has_parser = has_parser and parser ~= nil
-    if has_parser then has_parser = pcall(vim.treesitter.start, buf_id, lang) end
-    if not has_parser then vim.bo[buf_id].syntax = ft end
+    H.enable_hl(buf_id, lang, ft)
   end
 
   -- Cursor position and window view. Find window (and not use picker window)
@@ -3613,6 +3609,17 @@ end
 
 H.set_buflines = function(buf_id, lines) pcall(vim.api.nvim_buf_set_lines, buf_id, 0, -1, false, lines) end
 
+H.enable_hl = function(buf_id, lang, ft)
+  -- TODO: Remove `opts.error` after compatibility with Neovim=0.11 is dropped
+  local has_parser, parser = pcall(vim.treesitter.get_parser, buf_id, lang, { error = false })
+  has_parser = has_parser and parser ~= nil
+  if has_parser then has_parser = pcall(vim.treesitter.start, buf_id, lang) end
+  -- Ensure that async highlighting is visible (as `getcharstr` blocks redraws)
+  local config = H.pickers.active == nil and H.get_config() or H.pickers.active.opts
+  if has_parser then vim.defer_fn(function() vim.cmd('redraw') end, config.delay.async) end
+  if not has_parser then vim.bo[buf_id].syntax = ft end
+end
+
 H.set_winbuf = function(win_id, buf_id) vim.api.nvim_win_set_buf(win_id, buf_id) end
 
 H.set_extmark = function(...) pcall(vim.api.nvim_buf_set_extmark, ...) end
@@ -3645,17 +3652,10 @@ H.expandcmd = function(x)
   return ok and res or x
 end
 
-H.redraw = function() vim.cmd('redraw') end
-
-H.redraw_scheduled = vim.schedule_wrap(H.redraw)
-
-H.getcharstr = function(delay_async, lmap)
-  -- Ensure that redraws still happen
-  H.timers.getcharstr:start(0, delay_async, H.redraw_scheduled)
+H.getcharstr = function(lmap)
   H.cache.is_in_getcharstr = true
   local ok, char = pcall(vim.fn.getcharstr)
   H.cache.is_in_getcharstr = nil
-  H.timers.getcharstr:stop()
 
   -- Terminate if no input, on hard-coded <C-c>, or outside mouse click
   local main_win_id
