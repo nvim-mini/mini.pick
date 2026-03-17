@@ -1610,7 +1610,7 @@ end
 ---@return table|nil Picker items or `nil` if no active picker.
 ---
 ---@seealso |MiniPick.set_picker_items()| and |MiniPick.set_picker_items_from_cli()|
-MiniPick.get_picker_items = function() return vim.deepcopy((H.pickers.active or {}).items) end
+MiniPick.get_picker_items = function() return H.copy_tables((H.pickers.active or {}).items) end
 
 --- Get stritems of active picker
 ---
@@ -2084,7 +2084,7 @@ H.validate_picker_opts = function(opts)
   opts = opts or {}
   if type(opts) ~= 'table' then H.error('Picker options should be table.') end
 
-  opts = vim.deepcopy(H.get_config(opts))
+  opts = H.copy_tables(H.get_config(opts))
 
   local validate_callable = function(x, x_name)
     if not vim.is_callable(x) then H.error(string.format('`%s` should be callable.', x_name)) end
@@ -2654,7 +2654,7 @@ H.picker_stop = function(picker, abort)
   if abort then
     H.pickers = {}
   else
-    local new_latest = vim.deepcopy(picker)
+    local new_latest = H.copy_tables(picker)
     H.picker_free(H.pickers.latest)
     H.pickers = { active = nil, latest = new_latest }
   end
@@ -3775,5 +3775,8 @@ H.get_lmap = function()
   return lmap
 end
 if vim.fn.has('nvim-0.10') == 0 then H.get_lmap = function() return {} end end
+
+-- A copy of `vim.deepcopy()` that doesn't error on userdata and threads
+H.copy_tables = function(x) return type(x) == 'table' and vim.tbl_map(H.copy_tables, x) or x end
 
 return MiniPick
