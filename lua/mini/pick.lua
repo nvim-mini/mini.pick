@@ -3547,7 +3547,7 @@ H.poke_picker_throttle = function(querytick_ref)
   end
 
   local latest_time, dont_check_querytick = vim.loop.hrtime(), querytick_ref == nil
-  local threshold = 1000000 * H.get_config().delay.async
+  local threshold = 1000000 * H.pickers.active.opts.delay.async
   local hrtime = vim.loop.hrtime
   local poke_is_picker_active = MiniPick.poke_is_picker_active
   return function()
