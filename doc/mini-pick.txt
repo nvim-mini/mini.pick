@@ -207,8 +207,7 @@ milliseconds of idle time.
   control over their side effects. As a result, regular mappings don't work
   here and picker's window needs to be current as long as it is shown.
   Changing window focus leads to automatic picker stop (after small delay).
-  Not picker related screen changes require explicit |:redraw|, like for
-  asynchronous syntax highlighting in preview to be visible immediately.
+  Not picker related screen changes require explicit |:redraw|.
 - Any picker is non-blocking but waits to return the chosen item. Example:
   `file = MiniPick.builtin.files()` allows other actions to be executed when
   picker is shown while still assigning `file` with value of the chosen item.
@@ -795,7 +794,8 @@ Defaults ~
 `config.delay` defines plugin delays (in ms). All should be strictly positive.
 
 `delay.async` is a delay between forcing asynchronous behavior. This usually
-means forcing |:redraw| in preview and using |MiniPick.poke_is_picker_active()|
+means forcing |:redraw| in preview (several but limited number of times to
+ensure visible async highlighting) and using |MiniPick.poke_is_picker_active()|
 (for example, to stop current matching if query has updated).
 Smaller values give smoother user experience at the cost of more computations.
 
