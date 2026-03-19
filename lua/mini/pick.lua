@@ -931,6 +931,8 @@ end
 MiniPick.refresh = function()
   if not MiniPick.is_picker_active() then return end
   H.picker_update(H.pickers.active, false, true)
+  -- Needed for something like `VimResized` (as `getcharstr` blocks redraw)
+  H.ensure_redraw(H.pickers.active)
 end
 
 --- Default match
@@ -1913,7 +1915,7 @@ H.ns_id = {
 H.timers = {
   busy = vim.loop.new_timer(),
   focus = vim.loop.new_timer(),
-  preview = vim.loop.new_timer(),
+  redraw = vim.loop.new_timer(),
 }
 
 -- Pickers
@@ -2979,16 +2981,7 @@ H.picker_show_preview = function(picker)
   preview(buf_id, item)
   picker.buffers.preview = vim.api.nvim_win_get_buf(win_id)
   picker.view_state = 'preview'
-
-  -- Do several (but limited) `:redraw` for slow async preview
-  H.timers.preview:stop()
-  local n = 0
-  local f = function()
-    vim.cmd('redraw')
-    n = n + 1
-    if n >= 100 then H.timers.preview:stop() end
-  end
-  H.timers.preview:start(0, picker.opts.delay.async, vim.schedule_wrap(f))
+  H.ensure_redraw(picker)
 end
 
 -- Default match --------------------------------------------------------------
@@ -3670,6 +3663,19 @@ H.getcharstr = function(lmap)
   if not ok or char == '' or char == '\3' or is_bad_mouse_click then return end
   -- Respect language mappings only if needed
   return vim.o.iminsert == 0 and char or (lmap[char] or char)
+end
+
+H.ensure_redraw = function(picker)
+  -- Ensure only one sequence of scheduled redraws
+  H.timers.redraw:stop()
+  local n = 0
+  local f = function()
+    vim.cmd('redraw')
+    -- Do several (but limited) `:redraw` for slow async changes
+    n = n + 1
+    if n >= 100 then H.timers.redraw:stop() end
+  end
+  H.timers.redraw:start(0, picker.opts.delay.async, vim.schedule_wrap(f))
 end
 
 H.tolower = (function()
