@@ -2538,6 +2538,7 @@ H.normalize_mappings = function(mappings, skip_alternatives)
     local key = H.replace_termcodes(char)
     -- Omit disabled keys and prefer custom actions over built-ins
     if (key == nil or key == '') or (res[key] ~= nil and res[key].is_custom) then return end
+    if res[key] ~= nil then H.notify('Duplicating mapping keys: ' .. data.name .. ' and ' .. res[key].name, 'WARN') end
     res[key] = data
   end
 
