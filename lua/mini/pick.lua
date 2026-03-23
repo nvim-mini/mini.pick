@@ -519,16 +519,16 @@
 --- Move is a fundamental action of changing which item is current.
 ---
 --- - `mappings.move_down` - change focus to the item below.
---- - `mappings.move_start` change focus to the first currently matched item
+--- - `mappings.move_start` change focus to the first currently matched item.
 --- - `mappings.move_up` - change focus to the item above.
 ---
 --- Notes:
 --- - Up and down wrap around edges: `move_down` on last item moves to first,
 ---   `move_up` on first moves to last.
 --- - Moving when preview or info view is shown updates the view with new item.
---- - These also work with non-overridable alternatives:
+--- - There are also hard-coded alternative keys (can be used for other actions):
 ---     - `<Down>` moves down.
----     - `<Home>` moves to first matched.
+---     - `<Home>` moves to first currently matched item.
 ---     - `<Up>` moves up.
 ---
 --- ## Paste ~
@@ -2534,28 +2534,28 @@ H.query_is_ignorecase = function(query)
   return prompt == vim.fn.tolower(prompt)
 end
 
-H.normalize_mappings = function(mappings, skip_alternatives)
-  local res = {}
-  local add_to_res = function(char, data)
-    local key = H.replace_termcodes(char)
-    -- Omit disabled keys and prefer custom actions over built-ins
-    if (key == nil or key == '') or (res[key] ~= nil and res[key].is_custom) then return end
-    if res[key] ~= nil then H.notify('Duplicating mapping keys: ' .. data.name .. ' and ' .. res[key].name, 'WARN') end
-    res[key] = data
+H.normalize_mappings = function(mappings)
+  local make_data = function(char, name, func, is_custom)
+    return { char = char, name = name, func = is_custom and func or H.actions[name], is_custom = is_custom }
   end
 
-  -- Use alternative keys for some common actions
-  local alt_chars = {}
-  if not skip_alternatives then alt_chars = { move_down = '<Down>', move_start = '<Home>', move_up = '<Up>' } end
-
-  -- Process
+  local res = {}
   for name, rhs in pairs(mappings) do
     local is_custom = type(rhs) == 'table'
     local char = is_custom and rhs.char or rhs
-    local data = { char = char, name = name, func = is_custom and rhs.func or H.actions[name], is_custom = is_custom }
-    add_to_res(char, data)
-    add_to_res(alt_chars[name], data)
+    local key = H.replace_termcodes(char)
+    -- Omit disabled keys and prefer custom actions over built-ins
+    if key ~= '' and (res[key] == nil or not res[key].is_custom) then
+      if res[key] ~= nil then H.notify('Duplicating mapping keys: ' .. name .. ' and ' .. res[key].name, 'WARN') end
+      res[key] = make_data(char, name, rhs.func, is_custom)
+    end
   end
+
+  -- Populate alternative keys, but not force them
+  local home, up, down = H.replace_termcodes('<Home>'), H.replace_termcodes('<Up>'), H.replace_termcodes('<Down>')
+  res[home] = res[home] or make_data('<Home>', 'move_start', nil, false)
+  res[up] = res[up] or make_data('<Up>', 'move_up', nil, false)
+  res[down] = res[down] or make_data('<Down>', 'move_down', nil, false)
 
   return res
 end
@@ -2930,14 +2930,14 @@ H.picker_show_info = function(picker)
       t.width = vim.fn.strchars(t.desc)
       width_max = math.max(width_max, t.width)
     end
-    table.sort(data, function(a, b) return a.desc < b.desc end)
+    table.sort(data, function(a, b) return a.desc < b.desc or (a.desc == b.desc and a.char < b.char) end)
 
     for _, t in ipairs(data) do
       table.insert(lines, string.format('%s%s │ %s', t.desc, string.rep(' ', width_max - t.width), t.char))
     end
   end
 
-  local action_keys = H.normalize_mappings(picker.opts.mappings, true)
+  local action_keys = H.normalize_mappings(picker.opts.mappings)
   append_char_data(vim.tbl_filter(function(x) return x.is_custom end, action_keys), 'Mappings (custom)')
   append_char_data(vim.tbl_filter(function(x) return not x.is_custom end, action_keys), 'Mappings (built-in)')
 
@@ -3636,10 +3636,7 @@ end
 
 H.clear_namespace = function(buf_id, ns_id) pcall(vim.api.nvim_buf_clear_namespace, buf_id, ns_id, 0, -1) end
 
-H.replace_termcodes = function(x)
-  if x == nil then return nil end
-  return vim.api.nvim_replace_termcodes(x, true, true, true)
-end
+H.replace_termcodes = function(x) return vim.api.nvim_replace_termcodes(x, true, true, true) end
 
 H.expand_callable = function(x, ...)
   if vim.is_callable(x) then return x(...) end
