@@ -1253,7 +1253,7 @@ end
 --- - Allows fourth `start_opts` argument to customize |MiniPick.start()| call.
 ---
 --- Notes:
---- - `on_choice` is called when target window is current.
+--- - `on_choice` with selected item is called when target window is current.
 ---
 ---@usage >lua
 ---   -- Customize with fourth argument inside a function wrapper
@@ -1279,10 +1279,7 @@ MiniPick.ui_select = function(items, opts, on_choice, start_opts)
     or function(x) return vim.split(vim.inspect(x), '\n') end
   local preview = function(buf_id, item) H.set_buflines(buf_id, preview_item(item.item)) end
 
-  local was_aborted = true
   local choose = function(item)
-    was_aborted = false
-    if item == nil then return end
     local win_target = MiniPick.get_picker_state().windows.target
     if not H.is_valid_win(win_target) then win_target = H.get_first_valid_normal_window() end
     vim.api.nvim_win_call(win_target, function()
@@ -1294,7 +1291,7 @@ MiniPick.ui_select = function(items, opts, on_choice, start_opts)
   local source = { items = items_ext, name = opts.prompt or opts.kind, preview = preview, choose = choose }
   start_opts = vim.tbl_deep_extend('force', start_opts or {}, { source = source })
   local item = MiniPick.start(start_opts)
-  if item == nil and was_aborted then on_choice(nil) end
+  if item == nil then on_choice(nil) end
 end
 
 --- Table with built-in pickers
