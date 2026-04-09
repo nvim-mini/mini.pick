@@ -1254,6 +1254,7 @@ end
 ---
 --- Notes:
 --- - `on_choice` with selected item is called when target window is current.
+--- - If a picker is active, start a new one after the current one is stopped.
 ---
 ---@usage >lua
 ---   -- Customize with fourth argument inside a function wrapper
@@ -1269,6 +1270,12 @@ end
 ---   vim.ui.select = ui_select_orig
 --- <
 MiniPick.ui_select = function(items, opts, on_choice, start_opts)
+  if MiniPick.is_picker_active() then
+    local cb = vim.schedule_wrap(function() MiniPick.ui_select(items, opts, on_choice, start_opts) end)
+    vim.api.nvim_create_autocmd('User', { pattern = 'MiniPickStop', once = true, callback = cb })
+    return
+  end
+
   local format_item = opts.format_item or H.item_to_string
   local items_ext = {}
   for i = 1, #items do

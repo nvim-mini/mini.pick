@@ -1069,6 +1069,7 @@ Implements required by `vim.ui.select()` signature, with some differencies:
 
 Notes:
 - `on_choice` with selected item is called when target window is current.
+- If a picker is active, start a new one after the current one is stopped.
 
 Usage ~
 >lua
