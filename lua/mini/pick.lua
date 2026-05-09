@@ -1249,7 +1249,9 @@ end
 --- Set automatically in |MiniPick.setup()|.
 ---
 --- Implements required by `vim.ui.select()` signature, with some differencies:
---- - Allows `opts.preview_item` that returns an array of lines for item preview.
+--- - Allows `opts.preview_item` that returns one of:
+---     - Array of lines for item preview.
+---     - Preview data described in |vim.ui.select()| (on Neovim>=0.12.3).
 --- - Allows fourth `start_opts` argument to customize |MiniPick.start()| call.
 ---
 --- Notes:
@@ -1284,7 +1286,16 @@ MiniPick.ui_select = function(items, opts, on_choice, start_opts)
 
   local preview_item = vim.is_callable(opts.preview_item) and opts.preview_item
     or function(x) return vim.split(vim.inspect(x), '\n') end
-  local preview = function(buf_id, item) H.set_buflines(buf_id, preview_item(item.item)) end
+  local preview = function(buf_id, item)
+    local data = preview_item(item.item)
+    if H.islist(data) then return H.set_buflines(buf_id, data) end
+    if not (type(data) == 'table' and H.is_valid_buf(data.buf)) then return end
+    vim.api.nvim_buf_call(buf_id, function()
+      vim.api.nvim_set_current_buf(data.buf)
+      pcall(vim.api.nvim_win_set_cursor, 0, data.pos)
+      vim.cmd('normal! zt')
+    end)
+  end
 
   local choose = function(item)
     local win_target = MiniPick.get_picker_state().windows.target
